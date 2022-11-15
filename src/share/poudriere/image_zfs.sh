@@ -61,7 +61,6 @@ zfs_prepare()
 
 	truncate -s ${IMAGESIZE} ${WRKDIR}/raw.img
 	md=$(/sbin/mdconfig ${WRKDIR}/raw.img)
-	zroot=${ZFS_POOL_NAME}
 	tmpzroot=${TMP_ZFS_POOL_NAME}
 
 	msg "Creating temporary ZFS pool"
@@ -72,7 +71,7 @@ zfs_prepare()
 		-O compression=on \
 		-O atime=off \
 		-t ${tmpzroot} \
-		-R ${WRKDIR}/world ${zroot} /dev/${md} || exit
+		-R ${WRKDIR}/world ${ZFS_POOL_NAME} /dev/${md} || exit
 
 	if [ -n "${ORIGIN_IMAGE}" ]; then
 		msg "Importing previous ZFS Datasets"
@@ -116,7 +115,6 @@ zfs_generate()
 
 	: ${SNAPSHOT_NAME:=$IMAGENAME}
 	FINALIMAGE=${IMAGENAME}.img
-	zroot="${ZFS_POOL_NAME}"
 	tmpzroot="${TMP_ZFS_POOL_NAME}"
 	zpool set bootfs=${tmpzroot}/${ZFS_BEROOT_NAME}/${ZFS_BOOTFS_NAME} ${tmpzroot}
 	zpool set autoexpand=on ${tmpzroot}
@@ -149,7 +147,6 @@ zfs_generate()
 
 	## When generating a disk image, we need to export the pool first.
 	zpool export ${tmpzroot}
-	zroot=
 	/sbin/mdconfig -d -u ${md#md}
 	md=
 
