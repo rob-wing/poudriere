@@ -80,7 +80,12 @@ EOF
 
 delete_image() {
 	[ ! -f "${excludelist}" ] || rm -f ${excludelist}
-	[ -z "${zroot}" ] || zpool destroy -f ${zroot}
+
+	zpool list ${TMP_ZFS_POOL_NAME} > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+	        zpool destroy -f ${TMP_ZFS_POOL_NAME}
+	fi
+
 	[ -z "${md}" ] || /sbin/mdconfig -d -u ${md#md}
 	[ -z "${zfs_zsnapshot}" ] || zfs destroy -r ${zfs_zsnapshot}
 
